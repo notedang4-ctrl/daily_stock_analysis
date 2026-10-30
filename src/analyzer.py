@@ -3736,6 +3736,7 @@ class GeminiAnalyzer:
                     zh='本结果不含 AI 结论；report.details 仍包含结构化事实。',
                     ko='AI 결론은 제공되지 않습니다. report.details에는 구조화된 사실이 포함됩니다.',
                 ),
+                news_summary=news_context or "",
                 success=True,
                 model_used=None,
                 report_language=report_language,
