@@ -89,6 +89,7 @@ class AnalysisService:
         portfolio_context: Optional[Dict[str, Any]] = None,
         report_language: Optional[str] = None,
         analysis_target: Optional[Any] = None,
+        skip_analysis: bool = False,
     ) -> Optional[Dict[str, Any]]:
         """
         执行股票分析
@@ -155,6 +156,7 @@ class AnalysisService:
             result = pipeline.process_single_stock(
                 code=stock_code,
                 skip_analysis=False,
+                facts_only=skip_analysis,
                 single_stock_notify=send_notification,
                 report_type=rt,
                 analysis_target=analysis_target,

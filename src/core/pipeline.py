@@ -438,6 +438,7 @@ class StockAnalysisPipeline:
         query_id: str,
         current_time: Optional[datetime] = None,
         analysis_target: Optional[AnalysisTarget] = None,
+        skip_analysis: bool = False,
     ) -> Optional[AnalysisResult]:
         """
         分析单只股票（增强版：含量比、换手率、筹码分析、多维度情报）
@@ -846,6 +847,7 @@ class StockAnalysisPipeline:
                     progress_callback=self._emit_progress,
                     stream_progress_callback=_on_llm_stream,
                     analysis_context_pack_summary=analysis_context_pack_summary,
+                    skip_analysis=skip_analysis,
                 )
                 llm_duration_ms = int((time.monotonic() - llm_started_at) * 1000)
                 if result is not None:
@@ -3296,6 +3298,7 @@ class StockAnalysisPipeline:
         self,
         code: str,
         skip_analysis: bool = False,
+        facts_only: bool = False,
         single_stock_notify: bool = False,
         report_type: ReportType = ReportType.SIMPLE,
         analysis_query_id: Optional[str] = None,
@@ -3356,11 +3359,11 @@ class StockAnalysisPipeline:
                 self._emit_progress(16, f"{code}：行情数据准备完成")
             
             # Step 2: AI 分析
-            if skip_analysis:
+            if skip_analysis and not facts_only:
                 logger.info(f"[{code}] 跳过 AI 分析（dry-run 模式）")
                 return None
-            
-            analyze_kwargs = {"query_id": effective_query_id}
+
+            analyze_kwargs = {"query_id": effective_query_id, "skip_analysis": facts_only}
             if current_time is not None:
                 analyze_kwargs["current_time"] = current_time
             if analysis_target is not None:

@@ -53,6 +53,10 @@ class AnalyzeRequest(BaseModel):
         False,
         description="是否强制刷新（忽略缓存）"
     )
+    skip_analysis: bool = Field(
+        False,
+        description="只抓数据不跑 LLM 分析；仍返回 report.details 中的结构化事实",
+    )
     async_mode: bool = Field(
         False,
         description="是否使用异步模式"

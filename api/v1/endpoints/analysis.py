@@ -609,6 +609,7 @@ def _handle_sync_analysis(
             analysis_phase=request.analysis_phase,
             report_language=getattr(request, "report_language", None),
             analysis_target=analysis_target,
+            skip_analysis=getattr(request, "skip_analysis", False),
         )
 
         if result is None:

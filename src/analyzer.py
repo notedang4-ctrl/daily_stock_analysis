@@ -3681,6 +3681,7 @@ class GeminiAnalyzer:
         progress_callback: Optional[Callable[[int, str], None]] = None,
         stream_progress_callback: Optional[Callable[[int], None]] = None,
         analysis_context_pack_summary: Optional[str] = None,
+        skip_analysis: bool = False,
     ) -> AnalysisResult:
         """
         分析单只股票
@@ -3709,6 +3710,37 @@ class GeminiAnalyzer:
         code = context.get('code', 'Unknown')
         config = self._get_runtime_config()
         report_language = normalize_report_language(getattr(config, "report_language", "zh"))
+
+        if skip_analysis:
+            facts_only_name = (
+                context.get('stock_name')
+                or (context.get('realtime') or {}).get('name')
+                or STOCK_NAME_MAP.get(code, f'股票{code}')
+            )
+            return AnalysisResult(
+                code=code,
+                name=facts_only_name,
+                sentiment_score=50,
+                trend_prediction=localize_trend_prediction('震荡', report_language),
+                operation_advice=localize_operation_advice('持有', report_language),
+                confidence_level=localize_confidence_level('低', report_language),
+                analysis_summary=_localized_text(
+                    report_language,
+                    en='Facts-only mode: LLM analysis was skipped by request.',
+                    zh='仅取事实模式：按请求跳过 LLM 分析。',
+                    ko='사실 전용 모드: 요청에 따라 LLM 분석을 건너뛰었습니다.',
+                ),
+                risk_warning=_localized_text(
+                    report_language,
+                    en='No AI conclusion is provided; report.details still carries structured facts.',
+                    zh='本结果不含 AI 结论；report.details 仍包含结构化事实。',
+                    ko='AI 결론은 제공되지 않습니다. report.details에는 구조화된 사실이 포함됩니다.',
+                ),
+                success=True,
+                model_used=None,
+                report_language=report_language,
+            )
+
         system_prompt = self._get_analysis_system_prompt(report_language, stock_code=code)
         skill_instructions, default_skill_policy, use_legacy_default_prompt = self._get_skill_prompt_sections()
         
